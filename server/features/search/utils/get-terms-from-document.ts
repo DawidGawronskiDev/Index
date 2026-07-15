@@ -1,0 +1,12 @@
+import type { Document } from "../types";
+import { tokenize } from "./tokenize";
+
+/**
+ * Extracts terms from a document, filtering out stop words and non-alphanumeric terms.
+ *
+ * @param document - The document to extract terms from.
+ * @returns An array of filtered terms (strings).
+ */
+export const getTermsFromDocument = (document: Document): string[] => {
+  return tokenize(document.content);
+};

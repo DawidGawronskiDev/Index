@@ -1,0 +1,12 @@
+export { cleanTerm } from "./clean-term";
+export { countTerms } from "./count-terms";
+export { getTermsFromDocument } from "./get-terms-from-document";
+export { getTermFrequenciesFromDocument } from "./get-term-frequencies-from-document";
+export { readDocument } from "./read-document";
+export { scoreDocuments } from "./score-documents";
+export { getDocumentFilenames } from "./get-document-filenames";
+export { getDocumentFrequency } from "./get-document-frequency";
+export { tokenize } from "./tokenize";
+export { getIdf } from "./get-idf";
+export { getInvertedIndex } from "./get-inverted-index";
+export { search } from "./search";

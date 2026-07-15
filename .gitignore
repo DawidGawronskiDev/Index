@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Env files (keep .env.example tracked)
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+
+# TanStack Router generated cache
+.tanstack/
+
+# Documents folder
+*/documents
