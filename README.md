@@ -2,7 +2,7 @@
 
 A Wikipedia search engine built from scratch. It has four pieces: a crawler that saves Wikipedia pages to disk, a scoring system that ranks them against a search, a small API, and a web page to search from.
 
-Built with Puppeteer for crawling, Express for the API, and React with TanStack Router for the client. No Elasticsearch, no Lucene, no wrapped third-party search API. The ranking logic is the point of the project.
+Built with Puppeteer for crawling, Express for the API, and React with TanStack Router for the client.
 
 ## How it works
 
@@ -66,11 +66,15 @@ Runs on `http://localhost:5173` by default and expects the server at the `FRONTE
 
 ## API
 
-| Method | Path | Description |
-|---|---|---|
-| GET | `/api/health` | Health check |
-| GET | `/api/search?q=` | Search results, ranked best match first |
-| GET | `/api/articles/:id` | Full article by id, 404 if it doesn't exist |
+| Method | Path                | Description                                 |
+| ------ | ------------------- | ------------------------------------------- |
+| GET    | `/api/health`       | Health check                                |
+| GET    | `/api/search?q=`    | Search results, ranked best match first     |
+| GET    | `/api/articles/:id` | Full article by id, 404 if it doesn't exist |
+
+## Limitations
+
+The search lookup lives in memory only. It gets rebuilt from scratch every time the server starts, reading and re-processing every file in `server/documents/`. Nothing is saved to disk between runs. That's fine at a few hundred articles, but startup time grows with the size of the corpus, and every restart pays that cost again.
 
 ## Attribution
 
