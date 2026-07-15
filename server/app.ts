@@ -1,3 +1,4 @@
+import path from "path";
 import express, { type Express } from "express";
 import cors from "cors";
 
@@ -23,5 +24,9 @@ app.use(
 app.use("/api/health", healthRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/articles", articleRouter);
+
+app.get(/^(?!\/api).*/, (_req, res) => {
+  res.sendFile(path.resolve("public", "index.html"));
+});
 
 export default app;
