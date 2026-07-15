@@ -1,0 +1,22 @@
+{
+  "name": "search-engine",
+  "version": "1.0.0",
+  "description": "A Wikipedia search engine built from scratch. It has four pieces: a crawler that saves Wikipedia pages to disk, a scoring system that ranks them against a search, a small API, and a web page to search from.",
+  "main": "index.js",
+  "scripts": {
+    "client:dev": "cd client && vite",
+    "server:dev": "cd server && tsx --watch index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DawidGawronskiDev/Index.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DawidGawronskiDev/Index/issues"
+  },
+  "homepage": "https://github.com/DawidGawronskiDev/Index#readme"
+}
