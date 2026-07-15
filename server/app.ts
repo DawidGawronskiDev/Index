@@ -11,6 +11,7 @@ const app: Express = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",
