@@ -1,12 +1,22 @@
-import puppeteer from "puppeteer";
 import fs from "fs/promises";
 import path from "path";
-import type { Document } from "../search/types";
-import { v4 as uuidv4 } from "uuid";
+import crypto from "crypto";
+import { request } from "undici";
+import * as cheerio from "cheerio";
+import type { ContentBlock, Document } from "../search/types";
+
+import "dotenv/config";
 
 const SEED_URL = "https://en.wikipedia.org/wiki/Psychology";
-const PAGE_LIMIT = 1000;
+const PAGE_LIMIT = 100;
 const OUTPUT_DIR = "documents";
+const USER_AGENT = process.env.USER_AGENT;
+
+// ponytail: matches References/Bibliography/Further reading/Sources headings only.
+// Wikipedia renders some of these via templates that don't always expand to a
+// plain <li> list, so bibliography can come back empty on a handful of pages.
+const BIBLIOGRAPHY_HEADING =
+  /^(references|bibliography|further reading|sources)$/i;
 
 const visited: Set<string> = new Set();
 
@@ -22,12 +32,9 @@ const cleanParagraph = (paragraph: string): string =>
     .filter((term) => alphaNumericRegex.test(term) && term.length > 0)
     .join(" ");
 
-const cleanParagraphs = (paragraphs: string[]) =>
-  paragraphs.map((paragraph) => cleanParagraph(paragraph)).join("\n\n");
-
-const normalizeLink = (href: string): string | null => {
+const normalizeLink = (href: string, baseUrl: string): string | null => {
   try {
-    const url = new URL(href);
+    const url = new URL(href, baseUrl);
     if (url.hostname !== "en.wikipedia.org") return null;
     if (!url.pathname.startsWith("/wiki/")) return null;
     const article = url.pathname.slice("/wiki/".length);
@@ -44,12 +51,66 @@ const titleToFilename = (title: string): string =>
     .replace(/[^a-zA-Z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "");
 
-await fs.mkdir(OUTPUT_DIR, { recursive: true });
+const extractSections = ($: cheerio.CheerioAPI): ContentBlock[] => {
+  const blocks: ContentBlock[] = [];
 
-const browser = await puppeteer.launch({
-  headless: true,
-});
-const page = await browser.newPage();
+  $("#mw-content-text .mw-parser-output")
+    .first()
+    .find("h2, h3, p")
+    .each((_, el) => {
+      const $el = $(el);
+
+      if (el.tagName === "h2" || el.tagName === "h3") {
+        const id = $el.attr("id");
+        const text = $el.text().trim();
+        if (id && text) {
+          blocks.push({
+            type: "heading",
+            id,
+            level: el.tagName === "h2" ? 2 : 3,
+            text,
+          });
+        }
+        return;
+      }
+
+      const text = cleanParagraph($el.text());
+      if (text) blocks.push({ type: "paragraph", text });
+    });
+
+  return blocks;
+};
+
+const extractBibliography = ($: cheerio.CheerioAPI): string[] => {
+  const entries: string[] = [];
+
+  $("#mw-content-text .mw-parser-output")
+    .first()
+    .find("div.mw-heading")
+    .each((_, headingWrapper) => {
+      const headingText = $(headingWrapper)
+        .find("h2, h3")
+        .first()
+        .text()
+        .trim();
+      if (!BIBLIOGRAPHY_HEADING.test(headingText)) return;
+
+      $(headingWrapper)
+        .nextUntil("div.mw-heading")
+        .find("li")
+        .each((_, li) => {
+          const $li = $(li);
+          const text = ($li.find(".mw-reference-text").text() || $li.text())
+            .replace(/^↑\s*/, "")
+            .trim();
+          if (text) entries.push(text);
+        });
+    });
+
+  return entries;
+};
+
+await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
 const queue: string[] = [SEED_URL];
 visited.add(SEED_URL);
@@ -59,25 +120,28 @@ while (queue.length > 0 && fetchedCount < PAGE_LIMIT) {
   const url = queue.shift()!;
 
   try {
-    await page.goto(url, { waitUntil: "domcontentloaded" });
+    const { body } = await request(url, {
+      headers: { "User-Agent": USER_AGENT },
+    });
+    const $ = cheerio.load(await body.text());
+    $("script, style").remove();
 
-    const title = await page.$eval("h1", (el) => el.textContent);
-    const paragraphs = await page.$$eval("p", (elements) =>
-      elements.map((el) => el.textContent),
-    );
-    const links = await page.$$eval("a", (elements) =>
-      elements.map((el) => el.href),
-    );
-
+    const title = $("h1").first().text();
     if (!title) throw new Error("missing h1 title");
 
+    const sections = extractSections($);
+    const bibliography = extractBibliography($);
+    const links = $("a")
+      .map((_, el) => $(el).attr("href"))
+      .get()
+      .filter((href): href is string => href !== undefined);
+
     const document: Document = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       title,
       url,
-      content: cleanParagraphs(
-        paragraphs.filter((p): p is string => p !== null),
-      ),
+      sections,
+      bibliography,
     };
 
     const filename = `${titleToFilename(title)}.json`;
@@ -91,7 +155,7 @@ while (queue.length > 0 && fetchedCount < PAGE_LIMIT) {
 
     for (const link of links) {
       if (fetchedCount + queue.length >= PAGE_LIMIT) break;
-      const normalized = normalizeLink(link);
+      const normalized = normalizeLink(link, url);
       if (normalized && !visited.has(normalized)) {
         visited.add(normalized);
         queue.push(normalized);
@@ -101,5 +165,3 @@ while (queue.length > 0 && fetchedCount < PAGE_LIMIT) {
     console.error(`Skipping ${url}:`, error);
   }
 }
-
-await browser.close();

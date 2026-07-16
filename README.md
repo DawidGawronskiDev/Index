@@ -74,7 +74,7 @@ Runs on `http://localhost:5173` by default and expects the server at the `FRONTE
 
 ## Limitations
 
-The search lookup lives in memory only. It gets rebuilt from scratch every time the server starts, reading and re-processing every file in `server/documents/`. Nothing is saved to disk between runs. That's fine at a few hundred articles, but startup time grows with the size of the corpus, and every restart pays that cost again.
+The search lookup lives in memory only. It gets rebuilt from scratch every time the server starts, reading and re-processing every file in `server/documents/`.
 
 ## Attribution
 
