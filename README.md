@@ -1,80 +1,82 @@
 # The Index
 
-A Wikipedia search engine built from scratch. It has four pieces: a crawler that saves Wikipedia pages to disk, a scoring system that ranks them against a search, a small API, and a web page to search from.
+A Wikipedia search engine built from scratch. A crawler pulls pages into SQLite, a BM25 scorer ranks them against a query, and a small Express app serves both a JSON API and a search page.
 
-Built with undici and cheerio for crawling, Express for the API, SQLite for storage, and React with TanStack Router for the client.
+Built with undici and cheerio for crawling, Express and Pug for the server and page, better-sqlite3 for storage.
+
+<div>
+  <img src="screens/light.webp" alt="Search results for &quot;Life&quot;, light mode">
+  <img src="screens/dark.webp" alt="Search results for &quot;Life&quot;, dark mode">
+</div>
 
 ## How it works
 
-1. **Crawl** (`server/features/crawler`): starting from one article, a script opens the page, pulls out its headings, paragraphs, and bibliography, and follows its links to open more pages, then follows those pages' links, and so on. It skips pages that aren't real articles, like Talk pages or Category pages. Each article gets saved as a row in a SQLite database (`server/db`).
-2. **Index** (`server/features/search`): when the server starts, it reads every saved article from the database and breaks the text into words, lowercased, punctuation removed, common words like "the" and "and" dropped. It builds a lookup that, for any word, lists every article containing it and how many times it shows up there.
-3. **Search** (`server/routes`): a search query goes through the same word breakdown. Each article that shares words with the query gets a score. Words that show up in fewer articles overall count for more, so a rare matching word beats a common one repeated many times. The highest-scoring articles come back first.
-4. **Read**: the web app fetches those ranked results, and can also load one full article at a time to display it.
+1. **Crawl** (`src/features/crawler`): starting from one seed article, a script fetches the page, pulls the title and paragraph text (skipping "See also," "References," and "External links"), and follows its links to queue up more pages. It skips anything that isn't a real article, like Talk or Category pages. Each article gets upserted into a SQLite table (`src/db`), keyed by title.
+2. **Index** (`src/features/search`): every article gets tokenized (lowercased, punctuation stripped, stop words dropped) into an inverted index: for each word, which articles contain it and how many times. This build gets cached to `index-cache.json`, so the server loads it straight from disk on the next boot instead of re-tokenizing the whole corpus. The crawler rebuilds the cache after each run; if you edit the database by hand, you'll need to rerun the crawler to pick it up.
+3. **Search** (`src/routes`): a query runs through the same tokenizer, then gets scored against every article that shares a term, using BM25. Rare words count for more than common ones, and score is normalized against article length so long articles don't win just by being long.
+4. **Read**: results link straight out to the Wikipedia article. There's no in-app article view.
 
 ## Project layout
 
 ```
-server/
-  features/crawler/    # saves Wikipedia articles to the database
-  features/search/      # breaks articles into words and scores search matches
-  routes/                # the API (health check, search, articles)
-  db/                     # SQLite connection and queries
-client/
-  src/features/search/   # search page and article view
-  src/routes/             # the app's pages
-  src/components/         # navbar, footer, shared UI
+src/
+  app.ts                  # express app: middleware, routers, view engine
+  index.ts                # entrypoint, starts the server
+  db/                      # sqlite connection and document queries
+  features/
+    crawler/               # crawls Wikipedia into the db, rebuilds the index cache
+    search/
+      utils/                # tokenize, indexing, scoring, search, index cache
+      corpus.ts              # loads documents + index at boot
+      index.ts                # CLI for querying the index directly
+  routes/                  # health check, JSON search API, HTML search page
+  templates/                # pug views for the search page
+  public/                    # static CSS
 ```
 
 ## Running it
 
-Server and client are separate projects with their own `package.json`, not an npm workspace, so install and run each on its own.
-
-### Server
-
 ```
-cd server
 npm install
 cp .env.example .env
-npx tsx index.ts
+npm run dev
 ```
 
 Runs on the port set in `.env` (`3000` by default).
 
-To (re)build the document corpus:
+To (re)build the document corpus and index cache:
 
 ```
-npx tsx features/crawler/index.ts
+npx tsx src/features/crawler/index.ts
 ```
 
-Edit `SEED_URL` and `PAGE_LIMIT` at the top of `features/crawler/index.ts` to crawl a different starting point or a different number of pages.
+Edit `SEED_URL` and `PAGE_LIMIT` at the top of that file to crawl a different starting point or a different number of pages.
 
 There's also a CLI for querying the index directly, without starting the server:
 
 ```
-npx tsx features/search/index.ts "your query here"
+npx tsx src/features/search/index.ts "your query here"
 ```
 
-### Client
+To build and run the compiled version:
 
 ```
-cd client
-npm install
-npm run dev
+npm run build
+npm start
 ```
-
-Runs on `http://localhost:5173` by default and expects the server at the `FRONTEND_URL`/API origin configured in the server's `.env`.
 
 ## API
 
-| Method | Path                | Description                                 |
-| ------ | ------------------- | ------------------------------------------- |
-| GET    | `/api/health`       | Health check                                |
-| GET    | `/api/search?q=`    | Search results, ranked best match first     |
-| GET    | `/api/articles/:id` | Full article by id, 404 if it doesn't exist |
+| Method | Path             | Description                               |
+| ------ | ---------------- | ----------------------------------------- |
+| GET    | `/api/health`    | Health check                              |
+| GET    | `/api/search?q=` | Search results as JSON, ranked best first |
+
+The search page itself (`/`) is server-rendered with Pug; typing in the input hits `/search/results?q=` and swaps in just the results fragment, no full page reload.
 
 ## Limitations
 
-The search lookup lives in memory only. It gets rebuilt from scratch every time the server starts, reading and re-processing every article stored in `server/search_engine.db`.
+The index lives in `index-cache.json` on disk, but it's a snapshot: nothing keeps it in sync with the database automatically. Add articles outside the crawler and they won't show up in search until you rebuild the cache.
 
 ## Attribution
 
