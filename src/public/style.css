@@ -160,3 +160,24 @@ input[name="q"]:focus {
   font-variant-numeric: tabular-nums;
   font-size: 0.75rem;
 }
+
+.site-footer {
+  max-width: 42rem;
+  margin-inline: auto;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.site-footer a {
+  display: inline-flex;
+  color: var(--muted-foreground);
+  transition: color 150ms ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.site-footer a:hover {
+  color: var(--primary);
+}
