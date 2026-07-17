@@ -1,23 +1,30 @@
 {
   "name": "search-engine",
   "version": "1.0.0",
-  "description": "A Wikipedia search engine built from scratch. It has four pieces: a crawler that saves Wikipedia pages to disk, a scoring system that ranks them against a search, a small API, and a web page to search from.",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "client:dev": "cd client && vite",
-    "client:build": "cd client && vite build",
-    "server:dev": "cd server && tsx --watch index.ts"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DawidGawronskiDev/Index.git"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/DawidGawronskiDev/Index/issues"
+  "type": "module",
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "cheerio": "^1.2.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "pug": "^3.0.4",
+    "redis": "^6.1.0",
+    "typescript": "^7.0.2",
+    "undici": "^8.7.0",
+    "zod": "^4.4.3"
   },
-  "homepage": "https://github.com/DawidGawronskiDev/Index#readme"
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.19",
+    "@types/pug": "^2.0.10"
+  }
 }
