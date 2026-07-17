@@ -1,10 +1,2 @@
-export { cleanTerm } from "./clean-term.js";
-export { countTerms } from "./count-terms.js";
-export { getTermsFromDocument } from "./get-terms-from-document.js";
-export { getTermFrequenciesFromDocument } from "./get-term-frequencies-from-document.js";
-export { scoreDocuments } from "./score-documents.js";
-export { getDocumentFrequency } from "./get-document-frequency.js";
-export { tokenize } from "./tokenize.js";
-export { getIdf } from "./get-idf.js";
-export { getInvertedIndex } from "./get-inverted-index.js";
+export { getInvertedIndex } from "./indexing.js";
 export { search } from "./search.js";

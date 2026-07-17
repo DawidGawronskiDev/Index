@@ -1,6 +1,26 @@
 import type { Document, InvertedIndex } from "../types.js";
-import { getIdf } from "./get-idf.js";
 import { tokenize } from "./tokenize.js";
+
+const getDocumentFrequency = (
+  term: string,
+  invertedIndex: InvertedIndex,
+): number => {
+  return invertedIndex.get(term)?.size || 0;
+};
+
+const getIdf = (
+  term: string,
+  invertedIndex: InvertedIndex,
+  totalDocuments: number,
+): number => {
+  const documentFrequency = getDocumentFrequency(term, invertedIndex);
+
+  if (documentFrequency === 0) {
+    return 0;
+  }
+
+  return Math.log(totalDocuments / documentFrequency);
+};
 
 /**
  * Scores every document that shares at least one term with the query, using
