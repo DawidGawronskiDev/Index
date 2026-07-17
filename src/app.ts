@@ -13,14 +13,10 @@ const app: Express = express();
 app.set("view engine", "pug");
 app.set("views", path.join(import.meta.dirname, "templates"));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(import.meta.dirname, "public")));
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "*",
-    allowedHeaders: ["Content-Type", "Authorization"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    origin: "*",
   }),
 );
 
