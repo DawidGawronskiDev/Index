@@ -1,15 +1,13 @@
-import fs from "fs/promises";
-import path from "path";
 import crypto from "crypto";
 import { request } from "undici";
 import * as cheerio from "cheerio";
 import type { ContentBlock, Document } from "../search/types";
+import { upsertDocument } from "../../db";
 
 import "dotenv/config";
 
 const SEED_URL = "https://en.wikipedia.org/wiki/Psychology";
 const PAGE_LIMIT = 100;
-const OUTPUT_DIR = "documents";
 const USER_AGENT = process.env.USER_AGENT;
 
 // ponytail: matches References/Bibliography/Further reading/Sources headings only.
@@ -44,12 +42,6 @@ const normalizeLink = (href: string, baseUrl: string): string | null => {
     return null;
   }
 };
-
-const titleToFilename = (title: string): string =>
-  title
-    .trim()
-    .replace(/[^a-zA-Z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
 
 const extractSections = ($: cheerio.CheerioAPI): ContentBlock[] => {
   const blocks: ContentBlock[] = [];
@@ -110,8 +102,6 @@ const extractBibliography = ($: cheerio.CheerioAPI): string[] => {
   return entries;
 };
 
-await fs.mkdir(OUTPUT_DIR, { recursive: true });
-
 const queue: string[] = [SEED_URL];
 visited.add(SEED_URL);
 let fetchedCount = 0;
@@ -144,11 +134,7 @@ while (queue.length > 0 && fetchedCount < PAGE_LIMIT) {
       bibliography,
     };
 
-    const filename = `${titleToFilename(title)}.json`;
-    await fs.writeFile(
-      path.join(OUTPUT_DIR, filename),
-      JSON.stringify(document, null, 2),
-    );
+    upsertDocument(document);
 
     fetchedCount++;
     console.log(`[${fetchedCount}/${PAGE_LIMIT}] ${title}`);

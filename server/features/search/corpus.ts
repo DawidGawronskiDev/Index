@@ -1,11 +1,8 @@
 import type { Document } from "./types";
-import { getDocumentFilenames, getInvertedIndex, readDocument } from "./utils";
+import { getInvertedIndex } from "./utils";
+import { getAllDocuments } from "../../db";
 
-const documentFilenames = await getDocumentFilenames();
-
-export const documents: Document[] = await Promise.all(
-  documentFilenames.map((filename) => readDocument(filename)),
-);
+export const documents: Document[] = getAllDocuments();
 
 export const invertedIndex = await getInvertedIndex(documents);
 

@@ -24,6 +24,3 @@ npm-debug.log*
 
 # TanStack Router generated cache
 .tanstack/
-
-# Documents folder
-*/documents
