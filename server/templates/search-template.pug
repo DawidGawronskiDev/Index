@@ -1,0 +1,21 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title Search Wikipedia
+    body
+        include search-input.pug
+        include search-results.pug
+
+        script.
+            const input = document.querySelector('input[name="q"]');
+            let timeoutId;
+
+            input.addEventListener('input', () => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(async () => {
+                    const res = await fetch(`/search/results?q=${encodeURIComponent(input.value)}`);
+                    document.querySelector('.results').outerHTML = await res.text();
+                }, 300);
+            });

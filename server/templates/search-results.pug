@@ -1,0 +1,13 @@
+.results
+    if !searchTerm
+        p.muted Search Wikipedia for articles.
+
+    if searchTerm && !results.length
+        p.muted No results found for "#{searchTerm}".
+
+    if searchTerm && results.length
+        ol
+            each result in results
+                li
+                    a(href=result.url, target="_blank")= result.title
+                    span.muted = #{result.score.toFixed(5)}

@@ -16,6 +16,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "pug": "^3.0.4",
     "redis": "^6.1.0",
     "typescript": "^7.0.2",
     "undici": "^8.7.0",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
-    "@types/cors": "^2.8.19"
+    "@types/cors": "^2.8.19",
+    "@types/pug": "^2.0.10"
   }
 }
