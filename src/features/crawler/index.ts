@@ -7,7 +7,7 @@ import "dotenv/config";
 import { normaliseLink } from "./normaliseLink";
 
 const SEED_URL = "https://en.wikipedia.org/wiki/Life";
-const PAGE_LIMIT = 10000;
+const PAGE_LIMIT = 100;
 const USER_AGENT = process.env.USER_AGENT;
 
 const visited: Set<string> = new Set();
