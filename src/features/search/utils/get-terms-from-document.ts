@@ -8,9 +8,5 @@ import { tokenize } from "./tokenize.js";
  * @returns An array of filtered terms (strings).
  */
 export const getTermsFromDocument = (document: Document): string[] => {
-  const text = document.sections
-    .map((block) => block.text)
-    .join(" ");
-
-  return tokenize(text);
+  return tokenize(document.title);
 };
