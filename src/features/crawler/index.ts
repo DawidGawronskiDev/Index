@@ -1,7 +1,5 @@
-import crypto from "crypto";
 import { request } from "undici";
 import * as cheerio from "cheerio";
-import type { Document } from "@/features/search/types";
 import { upsertDocument } from "@/db";
 
 import "dotenv/config";
@@ -35,13 +33,7 @@ while (queue.length > 0 && fetchedCount < PAGE_LIMIT) {
       .get()
       .filter((href): href is string => href !== undefined);
 
-    const document: Document = {
-      id: crypto.randomUUID(),
-      title,
-      url,
-    };
-
-    upsertDocument(document);
+    upsertDocument({ title, url });
 
     fetchedCount++;
     console.log(`[${fetchedCount}/${PAGE_LIMIT}] ${title}`);

@@ -5,14 +5,14 @@ const db = new Database("search_engine.db");
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS documents (
-    id TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     url TEXT UNIQUE NOT NULL,
     title TEXT NOT NULL
   );
 `);
 
 type DocumentRow = {
-  id: string;
+  id: number;
   url: string;
   title: string;
 };
@@ -28,23 +28,15 @@ export const getAllDocuments = (): Document[] => {
   return rows.map(rowToDocument);
 };
 
-export const getDocumentById = (id: string): Document | undefined => {
-  const row = db.prepare("SELECT * FROM documents WHERE id = ?").get(id) as
-    | DocumentRow
-    | undefined;
-  return row ? rowToDocument(row) : undefined;
-};
-
 const upsertStatement = db.prepare(`
-  INSERT INTO documents (id, title, url)
-  VALUES (@id, @title, @url)
+  INSERT INTO documents (title, url)
+  VALUES (@title, @url)
   ON CONFLICT(url) DO UPDATE SET
     title = excluded.title
 `);
 
-export const upsertDocument = (document: Document): void => {
+export const upsertDocument = (document: Omit<Document, "id">): void => {
   upsertStatement.run({
-    id: document.id,
     title: document.title,
     url: document.url,
   });

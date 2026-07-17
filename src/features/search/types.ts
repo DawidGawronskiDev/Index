@@ -1,5 +1,5 @@
 export type Document = {
-  id: string;
+  id: number;
   title: string;
   url: string;
 };

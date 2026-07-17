@@ -4,7 +4,6 @@ import cors from "cors";
 
 import searchRouter from "@/routes/search-route";
 import healthRouter from "@/routes/health-route";
-import articleRouter from "@/routes/article-route";
 import searchPageRouter from "@/routes/search-page-route";
 
 import "dotenv/config";
@@ -27,7 +26,6 @@ app.use(
 
 app.use("/api/health", healthRouter);
 app.use("/api/search", searchRouter);
-app.use("/api/articles", articleRouter);
 
 app.use("/", searchPageRouter);
 
