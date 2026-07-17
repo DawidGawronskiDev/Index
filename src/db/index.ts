@@ -6,8 +6,8 @@ const db = new Database("search_engine.db");
 db.exec(`
   CREATE TABLE IF NOT EXISTS documents (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    url TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL,
+    url TEXT NOT NULL,
+    title TEXT UNIQUE NOT NULL,
     content TEXT NOT NULL
   );
 `);
@@ -34,8 +34,8 @@ export const getAllDocuments = (): Document[] => {
 const upsertStatement = db.prepare(`
   INSERT INTO documents (title, url, content)
   VALUES (@title, @url, @content)
-  ON CONFLICT(url) DO UPDATE SET
-    title = excluded.title,
+  ON CONFLICT(title) DO UPDATE SET
+    url = excluded.url,
     content = excluded.content
 `);
 

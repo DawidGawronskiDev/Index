@@ -11,46 +11,45 @@ const countTerms = (terms: string[]): Map<string, number> => {
   return termCounts;
 };
 
-const getTermFrequenciesFromDocument = (
-  document: Document,
-): Map<string, number> => {
-  const termFrequencies = new Map<string, number>();
-  const terms = tokenize(`${document.title} ${document.content}`);
-
-  if (terms.length === 0) {
-    return termFrequencies;
-  }
-
-  const termCounts = countTerms(terms);
-
-  for (const [term, count] of termCounts.entries()) {
-    termFrequencies.set(term, count / terms.length);
-  }
-
-  return termFrequencies;
+export type IndexResult = {
+  invertedIndex: InvertedIndex;
+  documentLengths: Map<Document["id"], number>;
+  averageDocumentLength: number;
 };
 
 /**
- * Creates an inverted index from a list of documents.
+ * Creates an inverted index from a list of documents, along with each
+ * document's length and the corpus's average length (needed for BM25's
+ * length normalization).
  *
  * @param documents - Documents to index.
- * @returns A Map from term to a Map of document ID to term frequency.
  */
 export const getInvertedIndex = async (
   documents: Document[],
-): Promise<InvertedIndex> => {
+): Promise<IndexResult> => {
   const invertedIndex: InvertedIndex = new Map();
+  const documentLengths = new Map<Document["id"], number>();
 
   for (const document of documents) {
-    const termFrequencies = getTermFrequenciesFromDocument(document);
+    const terms = tokenize(`${document.title} ${document.content}`);
+    documentLengths.set(document.id, terms.length);
 
-    for (const [term, frequency] of termFrequencies.entries()) {
+    const termCounts = countTerms(terms);
+
+    for (const [term, count] of termCounts.entries()) {
       if (!invertedIndex.has(term)) {
         invertedIndex.set(term, new Map());
       }
-      invertedIndex.get(term)!.set(document.id, frequency);
+      invertedIndex.get(term)!.set(document.id, count);
     }
   }
 
-  return invertedIndex;
+  const totalLength = [...documentLengths.values()].reduce(
+    (sum, length) => sum + length,
+    0,
+  );
+  const averageDocumentLength =
+    documents.length > 0 ? totalLength / documents.length : 0;
+
+  return { invertedIndex, documentLengths, averageDocumentLength };
 };

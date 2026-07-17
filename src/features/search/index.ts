@@ -1,5 +1,10 @@
 import { search } from "@/features/search/utils";
-import { invertedIndex, documentLookup } from "@/features/search/corpus";
+import {
+  invertedIndex,
+  documentLookup,
+  documentLengths,
+  averageDocumentLength,
+} from "@/features/search/corpus";
 
 const query = process.argv.slice(2).join(" ");
 
@@ -8,7 +13,13 @@ if (!query) {
   process.exit(1);
 }
 
-const results = search(query, invertedIndex, documentLookup);
+const results = search(
+  query,
+  invertedIndex,
+  documentLookup,
+  documentLengths,
+  averageDocumentLength,
+);
 
 if (results.length === 0) {
   console.log("No results.");

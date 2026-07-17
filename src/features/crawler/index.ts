@@ -1,17 +1,37 @@
 import { request } from "undici";
 import * as cheerio from "cheerio";
-import { upsertDocument } from "@/db";
+import { upsertDocument, getAllDocuments } from "@/db";
+import { getInvertedIndex, saveIndexCache } from "@/features/search/utils";
 
 import "dotenv/config";
 import { normaliseLink } from "./normaliseLink";
 
 const SEED_URL = "https://en.wikipedia.org/wiki/Life";
-const PAGE_LIMIT = 1000;
+const PAGE_LIMIT = 10000;
 const USER_AGENT = process.env.USER_AGENT;
 
 const visited: Set<string> = new Set();
 
 const squareBracketsRegex = /\[.*?\]/g;
+
+const EXCLUDED_HEADING_IDS = new Set([
+  "See_also",
+  "References",
+  "External_links",
+]);
+
+const removeExcludedSections = ($: cheerio.CheerioAPI): void => {
+  $("#mw-content-text .mw-parser-output")
+    .first()
+    .find("div.mw-heading")
+    .each((_, headingWrapper) => {
+      const headingId = $(headingWrapper).find("h2, h3").first().attr("id");
+      if (!headingId || !EXCLUDED_HEADING_IDS.has(headingId)) return;
+
+      $(headingWrapper).nextUntil("div.mw-heading").remove();
+      $(headingWrapper).remove();
+    });
+};
 
 const getContent = ($: cheerio.CheerioAPI): string => {
   return $("#mw-content-text .mw-parser-output")
@@ -36,6 +56,7 @@ while (queue.length > 0 && fetchedCount < PAGE_LIMIT) {
     });
     const $ = cheerio.load(await body.text());
     $("script, style").remove();
+    removeExcludedSections($);
 
     const title = $("h1").first().text();
     if (!title) throw new Error("missing h1 title");
@@ -64,3 +85,11 @@ while (queue.length > 0 && fetchedCount < PAGE_LIMIT) {
     console.error(`Skipping ${url}:`, error);
   }
 }
+
+console.log("Rebuilding search index cache...");
+const documents = getAllDocuments();
+const indexResult = await getInvertedIndex(documents);
+saveIndexCache(indexResult);
+console.log(
+  `Index cache saved (${documents.length} documents, ${indexResult.invertedIndex.size} terms).`,
+);

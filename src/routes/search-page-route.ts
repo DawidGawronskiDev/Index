@@ -2,13 +2,27 @@ import { Router } from "express";
 import type { Response } from "express";
 
 import { search } from "@/features/search/utils";
-import { invertedIndex, documentLookup } from "@/features/search/corpus";
+import {
+  invertedIndex,
+  documentLookup,
+  documentLengths,
+  averageDocumentLength,
+} from "@/features/search/corpus";
 import type { SearchResult } from "@/features/search/types";
 
 const searchPageRouter: Router = Router();
 
 const getResults = (searchTerm: string): SearchResult[] =>
-  searchTerm ? search(searchTerm, invertedIndex, documentLookup, 10) : [];
+  searchTerm
+    ? search(
+        searchTerm,
+        invertedIndex,
+        documentLookup,
+        documentLengths,
+        averageDocumentLength,
+        10,
+      )
+    : [];
 
 const renderSearchPage = (searchTerm: string, res: Response) => {
   res.render("search-template", {
