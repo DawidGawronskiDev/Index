@@ -10,4 +10,4 @@
             each result in results
                 li
                     a(href=result.url, target="_blank")= result.title
-                    span.muted = #{result.score.toFixed(5)}
+                    span.muted= result.score.toFixed(3)
