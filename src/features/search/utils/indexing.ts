@@ -15,7 +15,7 @@ const getTermFrequenciesFromDocument = (
   document: Document,
 ): Map<string, number> => {
   const termFrequencies = new Map<string, number>();
-  const terms = tokenize(document.title);
+  const terms = tokenize(`${document.title} ${document.content}`);
 
   if (terms.length === 0) {
     return termFrequencies;

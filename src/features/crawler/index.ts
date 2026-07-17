@@ -5,11 +5,23 @@ import { upsertDocument } from "@/db";
 import "dotenv/config";
 import { normaliseLink } from "./normaliseLink";
 
-const SEED_URL = "https://en.wikipedia.org/wiki/Psychology";
-const PAGE_LIMIT = 100;
+const SEED_URL = "https://en.wikipedia.org/wiki/Life";
+const PAGE_LIMIT = 1000;
 const USER_AGENT = process.env.USER_AGENT;
 
 const visited: Set<string> = new Set();
+
+const squareBracketsRegex = /\[.*?\]/g;
+
+const getContent = ($: cheerio.CheerioAPI): string => {
+  return $("#mw-content-text .mw-parser-output")
+    .first()
+    .find("p")
+    .map((_, el) => $(el).text().replace(squareBracketsRegex, "").trim())
+    .get()
+    .filter((text) => text.length > 0)
+    .join("\n\n");
+};
 
 const queue: string[] = [SEED_URL];
 visited.add(SEED_URL);
@@ -33,7 +45,9 @@ while (queue.length > 0 && fetchedCount < PAGE_LIMIT) {
       .get()
       .filter((href): href is string => href !== undefined);
 
-    upsertDocument({ title, url });
+    const content = getContent($);
+
+    upsertDocument({ title, url, content });
 
     fetchedCount++;
     console.log(`[${fetchedCount}/${PAGE_LIMIT}] ${title}`);

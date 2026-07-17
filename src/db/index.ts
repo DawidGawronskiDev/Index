@@ -7,7 +7,8 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS documents (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     url TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL
+    title TEXT NOT NULL,
+    content TEXT NOT NULL
   );
 `);
 
@@ -15,12 +16,14 @@ type DocumentRow = {
   id: number;
   url: string;
   title: string;
+  content: string;
 };
 
-const rowToDocument = ({ id, title, url }: DocumentRow): Document => ({
+const rowToDocument = ({ id, title, url, content }: DocumentRow): Document => ({
   id,
   title,
   url,
+  content,
 });
 
 export const getAllDocuments = (): Document[] => {
@@ -29,15 +32,17 @@ export const getAllDocuments = (): Document[] => {
 };
 
 const upsertStatement = db.prepare(`
-  INSERT INTO documents (title, url)
-  VALUES (@title, @url)
+  INSERT INTO documents (title, url, content)
+  VALUES (@title, @url, @content)
   ON CONFLICT(url) DO UPDATE SET
-    title = excluded.title
+    title = excluded.title,
+    content = excluded.content
 `);
 
 export const upsertDocument = (document: Omit<Document, "id">): void => {
   upsertStatement.run({
     title: document.title,
     url: document.url,
+    content: document.content,
   });
 };
