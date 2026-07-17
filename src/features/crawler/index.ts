@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import { request } from "undici";
 import * as cheerio from "cheerio";
-import type { ContentBlock, Document } from "../search/types";
-import { upsertDocument } from "../../db";
+import type { ContentBlock, Document } from "@/features/search/types";
+import { upsertDocument } from "@/db";
 
 import "dotenv/config";
 
@@ -11,7 +11,8 @@ const PAGE_LIMIT = 100;
 const USER_AGENT = process.env.USER_AGENT;
 
 // ponytail: matches References/Bibliography/Further reading/Sources headings only.
-// Wikipedia renders some of these via templates that don't always expand to a
+// Wikipedia
+// renders some of these via templates that don't always expand to a
 // plain <li> list, so bibliography can come back empty on a handful of pages.
 const BIBLIOGRAPHY_HEADING =
   /^(references|bibliography|further reading|sources)$/i;

@@ -1,5 +1,5 @@
-import type { Document, InvertedIndex } from "../types";
-import { getTermFrequenciesFromDocument } from "./get-term-frequencies-from-document";
+import type { Document, InvertedIndex } from "../types.js";
+import { getTermFrequenciesFromDocument } from "./get-term-frequencies-from-document.js";
 
 /**
  * Creates an inverted index from a list of documents.

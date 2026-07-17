@@ -1,5 +1,5 @@
 import Database from "better-sqlite3";
-import type { Document } from "../features/search/types";
+import type { Document } from "@/features/search/types";
 
 const db = new Database("search_engine.db");
 
@@ -35,9 +35,9 @@ export const getAllDocuments = (): Document[] => {
 };
 
 export const getDocumentById = (id: string): Document | undefined => {
-  const row = db
-    .prepare("SELECT * FROM documents WHERE id = ?")
-    .get(id) as DocumentRow | undefined;
+  const row = db.prepare("SELECT * FROM documents WHERE id = ?").get(id) as
+    | DocumentRow
+    | undefined;
   return row ? rowToDocument(row) : undefined;
 };
 

@@ -1,4 +1,4 @@
-import type { InvertedIndex } from "../types";
+import type { InvertedIndex } from "../types.js";
 
 /**
  * Calculates the document frequency for a given term based on the inverted index.

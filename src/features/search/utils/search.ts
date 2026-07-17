@@ -1,5 +1,5 @@
-import type { Document, InvertedIndex, SearchResult } from "../types";
-import { scoreDocuments } from "./score-documents";
+import type { Document, InvertedIndex, SearchResult } from "../types.js";
+import { scoreDocuments } from "./score-documents.js";
 
 /**
  * Searches the corpus for the given query, ranked by tf-idf score.

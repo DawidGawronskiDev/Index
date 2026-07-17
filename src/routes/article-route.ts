@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { documentLookup } from "../features/search/corpus";
+import { documentLookup } from "@/features/search/corpus";
 
 const articleRouter: Router = Router();
 

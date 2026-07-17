@@ -1,5 +1,5 @@
-import { STOP_WORDS } from "../data";
-import { cleanTerm } from "./clean-term";
+import { STOP_WORDS } from "../data.js";
+import { cleanTerm } from "./clean-term.js";
 
 const min_gram = 3;
 const max_gram = 6;

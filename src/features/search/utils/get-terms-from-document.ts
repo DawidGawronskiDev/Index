@@ -1,5 +1,5 @@
-import type { Document } from "../types";
-import { tokenize } from "./tokenize";
+import type { Document } from "../types.js";
+import { tokenize } from "./tokenize.js";
 
 /**
  * Extracts terms from a document, filtering out stop words and non-alphanumeric terms.

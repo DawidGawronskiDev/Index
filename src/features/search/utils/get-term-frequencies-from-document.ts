@@ -1,6 +1,6 @@
-import type { Document } from "../types";
-import { countTerms } from "./count-terms";
-import { getTermsFromDocument } from "./get-terms-from-document";
+import type { Document } from "../types.js";
+import { countTerms } from "./count-terms.js";
+import { getTermsFromDocument } from "./get-terms-from-document.js";
 
 /**
  * Calculates the term frequencies for a given document.

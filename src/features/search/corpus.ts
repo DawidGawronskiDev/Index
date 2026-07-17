@@ -1,6 +1,6 @@
-import type { Document } from "./types";
-import { getInvertedIndex } from "./utils";
-import { getAllDocuments } from "../../db";
+import type { Document } from "@/features/search/types";
+import { getInvertedIndex } from "@/features/search/utils";
+import { getAllDocuments } from "@/db";
 
 export const documents: Document[] = getAllDocuments();
 

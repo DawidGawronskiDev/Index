@@ -1,21 +1,22 @@
+import path from "path";
 import express, { type Express } from "express";
 import cors from "cors";
 
-import searchRouter from "./routes/search-route";
-import healthRouter from "./routes/health-route";
-import articleRouter from "./routes/article-route";
-import searchPageRouter from "./routes/search-page-route";
+import searchRouter from "@/routes/search-route";
+import healthRouter from "@/routes/health-route";
+import articleRouter from "@/routes/article-route";
+import searchPageRouter from "@/routes/search-page-route";
 
 import "dotenv/config";
 
 const app: Express = express();
 
 app.set("view engine", "pug");
-app.set("views", "./templates");
+app.set("views", path.join(import.meta.dirname, "templates"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(express.static(path.join(import.meta.dirname, "public")));
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "*",

@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import { search } from "../features/search/utils";
-import { invertedIndex, documentLookup } from "../features/search/corpus";
+import { search } from "@/features/search/utils";
+import { invertedIndex, documentLookup } from "@/features/search/corpus";
 
 const searchRouter: Router = Router();
 

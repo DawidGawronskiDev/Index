@@ -1,6 +1,6 @@
-import type { Document, InvertedIndex } from "../types";
-import { getIdf } from "./get-idf";
-import { tokenize } from "./tokenize";
+import type { Document, InvertedIndex } from "../types.js";
+import { getIdf } from "./get-idf.js";
+import { tokenize } from "./tokenize.js";
 
 /**
  * Scores every document that shares at least one term with the query, using

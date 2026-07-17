@@ -1,5 +1,5 @@
-import type { InvertedIndex } from "../types";
-import { getDocumentFrequency } from "./get-document-frequency";
+import type { InvertedIndex } from "../types.js";
+import { getDocumentFrequency } from "./get-document-frequency.js";
 
 /**
  * Calculates the inverse document frequency (IDF) for a given term based on the inverted index and total number of documents.

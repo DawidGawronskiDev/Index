@@ -1,5 +1,5 @@
-import { search } from "./utils";
-import { invertedIndex, documentLookup } from "./corpus";
+import { search } from "@/features/search/utils";
+import { invertedIndex, documentLookup } from "@/features/search/corpus";
 
 const query = process.argv.slice(2).join(" ");
 

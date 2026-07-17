@@ -1,9 +1,9 @@
 import { Router } from "express";
 import type { Response } from "express";
 
-import { search } from "../features/search/utils";
-import { invertedIndex, documentLookup } from "../features/search/corpus";
-import type { SearchResult } from "../features/search/types";
+import { search } from "@/features/search/utils";
+import { invertedIndex, documentLookup } from "@/features/search/corpus";
+import type { SearchResult } from "@/features/search/types";
 
 const searchPageRouter: Router = Router();
 
